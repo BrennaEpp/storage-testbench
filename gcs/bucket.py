@@ -21,7 +21,7 @@ import json
 import random
 import re
 
-from google.protobuf import field_mask_pb2, json_format
+from google.protobuf import field_mask_pb2, json_format, timestamp
 
 from google.storage.v2 import storage_pb2
 from google.iam.v1 import policy_pb2
@@ -483,7 +483,26 @@ class Bucket:
     def __update_metadata(self, source, update_mask):
         if update_mask is None:
             update_mask = field_mask_pb2.FieldMask(paths=Bucket.modifiable_fields)
-        update_mask.MergeMessage(source, self.metadata, True, True)
+        print("-------------------------\n")
+        if source.retention_policy.retention_period > 0:
+            source.retention_policy.effective_time.CopyFrom(datetime.datetime.now().isoformat().encode("utf-8"))
+            print("hi")
+        print(source.retention_policy)
+
+        print("------//---------------//----\n")
+        other_mask = field_mask_pb2.FieldMask(paths=["retention_policy"])
+        #print(other_mask)
+
+        # randhi
+
+        other_mask.MergeMessage(source, self.metadata, True, True)
+
+        # print(randhi)
+
+        # update_mask.MergeMessage(source, self.metadata, True, True)
+        #if self.metadata.retention_policy.retention_period > 0:
+            #self.metadata.retention_policy.effective_time: datetime.datetime.now()
+        print(self.metadata.retention_policy)
         self.metadata.metageneration += 1
         self.metadata.update_time.FromDatetime(datetime.datetime.now())
 
